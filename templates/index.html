@@ -1,0 +1,1027 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Warehouse Operating & Communication System</title>
+<style>
+:root{--bg:#f6f2e9;--panel:#fffdf8;--panel-soft:#f3ecdf;--border:#ded4c2;--text:#293746;--muted:#68727e;--accent:#805d35;--accent-soft:#eadfc9;--green:#287a5c;--red:#a6403b;--amber:#9a6a20;--shadow:0 12px 30px rgba(74,58,36,.07)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 12% 0%,#fffdf8 0,transparent 34%),var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
+.app-header{background:rgba(255,253,248,.94);border-bottom:1px solid var(--border);box-shadow:0 4px 18px rgba(74,58,36,.04)}
+.header-inner,.primary-nav,main{width:min(1320px,94%);margin-inline:auto}
+.header-inner{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:25px 0 18px}
+.brand-kicker{margin:0 0 6px;color:var(--accent);font-size:11px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}
+header h1{margin:0;font-size:clamp(22px,3vw,32px);letter-spacing:-.035em}
+header .subtitle{margin:7px 0 0;color:var(--muted);font-size:14px}
+.system-pill{display:inline-flex;align-items:center;gap:9px;flex:none;padding:9px 13px;border:1px solid var(--border);border-radius:999px;background:var(--panel);color:var(--muted);font-size:12px;font-weight:700}
+.system-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 3px rgba(154,106,32,.12)}
+.system-pill.online{color:var(--green)}
+.system-pill.online .system-dot{background:var(--green);box-shadow:0 0 0 3px rgba(40,122,92,.12)}
+.system-pill.offline{color:var(--red)}
+.system-pill.offline .system-dot{background:var(--red);box-shadow:0 0 0 3px rgba(166,64,59,.12)}
+.primary-nav{display:flex;align-items:center;gap:6px;padding:0 0 13px;overflow-x:auto}
+.primary-nav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:13px;font-weight:650;padding:9px 12px;border-radius:8px}
+.primary-nav a:hover,.primary-nav a:focus-visible{background:var(--panel-soft);color:var(--accent);outline:none}
+main{margin:28px auto 52px}
+h2{font-size:19px;letter-spacing:-.02em;margin:0 0 17px}
+h3{font-size:14px;color:var(--muted);font-weight:650;margin:0 0 8px}
+section{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:22px;margin-bottom:20px;min-width:0;box-shadow:var(--shadow);scroll-margin-top:18px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:20px;scroll-margin-top:18px}
+.stat,.resource-card{background:linear-gradient(145deg,#fffefa,var(--panel-soft));border:1px solid var(--border);border-radius:12px;padding:17px}
+.number{font-size:29px;font-weight:750;margin-top:6px;letter-spacing:-.04em}
+.resource-card .number{color:var(--accent)}
+.resource-card .total-caption{margin-top:5px;color:var(--muted);font-size:12px}
+.resource-card .total-caption strong{color:var(--text)}
+.muted{color:var(--muted);font-size:13px;line-height:1.55}
+.layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+form .fields,.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+label{font-size:13px;color:#4e5b68;font-weight:600}
+input,select,textarea{width:100%;min-width:0;background:#fffefa;border:1px solid #d8cebc;color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px}
+textarea{min-height:100px;resize:vertical;font-family:Consolas,monospace;font-size:12px;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:3px solid rgba(128,93,53,.18);border-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 18px}
+.checks label{display:flex;align-items:center;gap:7px}
+.checks input{width:auto}
+.quantities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 18px}
+.quantities .field{margin:0}
+button{background:var(--accent);color:white;border:1px solid transparent;border-radius:8px;padding:10px 15px;font-weight:700;cursor:pointer;transition:filter .15s ease,transform .15s ease}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button:focus-visible{outline:3px solid rgba(128,93,53,.28);outline-offset:2px}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.secondary{background:#e9e1d3;color:#394654;border-color:#ddd1bd}
+.success{background:#287a5c}
+.danger{background:#a6403b}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.reset-actions{margin:12px 0 20px}
+.capacity-panel{margin-top:22px;padding:18px;border:1px solid var(--border);border-radius:12px;background:#faf7ef}
+.capacity-panel h3{color:var(--text)}
+.capacity-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.capacity-fields .field{margin-bottom:8px}
+.message{margin-top:13px;padding:11px 13px;border:1px solid #e2d8c8;border-radius:8px;background:#f7f2e8;color:#53606d;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.message:empty{display:none}
+table{width:100%;border-collapse:collapse;min-width:750px}
+.table-wrap{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+th{color:#475565;background:#f2ecdf;font-weight:700}
+td{color:#3e4b59;background:#fffefa}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:#fcf8ef}
+.pill{display:inline-block;padding:5px 9px;border-radius:30px;background:#eee7da;color:#53606d;font-size:11px;font-weight:750}
+.pill.running{color:#216548;background:#e0f0e7}
+.pill.completed{color:#385e86;background:#e4edf6}
+.pill.waiting{color:#8a5b14;background:#f8edcf}
+.pill.failed{color:#923e39;background:#f5dfdc}
+.result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.result{padding:14px;border:1px solid var(--border);border-radius:9px;background:#faf7ef}
+.monitor-detail{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f3eb;border:1px solid var(--border);border-radius:9px;padding:13px;color:#3e4b59;font:12px/1.5 Consolas,monospace;min-height:100px}
+.result strong{display:block;margin-top:6px;overflow-wrap:anywhere;color:var(--text)}
+.resource-help{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.6}
+footer{text-align:center;color:var(--muted);padding:20px;font-size:12px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}.capacity-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.header-inner{align-items:flex-start;flex-direction:column;padding-top:19px}.system-pill{align-self:flex-start}.primary-nav{padding-bottom:10px}.primary-nav a{padding:8px 9px}main{width:94%;margin-top:18px}section{padding:15px}.stats{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.number{font-size:25px}form .fields,.fields{grid-template-columns:1fr}.capacity-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header class="app-header">
+<div class="header-inner">
+<div>
+<p class="brand-kicker">Operations Console</p>
+<h1>Smart Warehouse Operating &amp; Communication System</h1>
+<p class="subtitle">Warehouse process management, resource allocation and scheduling</p>
+</div>
+<div class="system-pill" id="systemStatusPill" role="status" aria-live="polite"><span class="system-dot"></span><span id="systemStatusText">Connecting</span></div>
+</div>
+<nav class="primary-nav" aria-label="Dashboard sections">
+<a href="#overview">Overview</a>
+<a href="#orders">Orders</a>
+<a href="#resources">Resources</a>
+<a href="#allocation">Allocation</a>
+<a href="#scheduling">Scheduling</a>
+<a href="#monitors">Monitors</a>
+<a href="#processes">Processes</a>
+</nav>
+</header>
+
+<main>
+<div class="stats" id="overview">
+<div class="stat"><h3>Total Processes</h3><div class="number" id="totalProcesses">0</div></div>
+<div class="stat"><h3>Running Processes</h3><div class="number" id="runningProcesses">0</div></div>
+<div class="stat"><h3>Completed Processes</h3><div class="number" id="completedProcesses">0</div></div>
+</div>
+
+<section id="resources">
+<h2>Resource Status</h2>
+<div class="grid">
+<div class="resource-card"><h3>Workers</h3><div class="number"><span id="workers">—</span><span class="muted"> available</span></div><div class="total-caption">Total capacity <strong id="workersTotal">—</strong></div></div>
+<div class="resource-card"><h3>Forklifts</h3><div class="number"><span id="forklifts">—</span><span class="muted"> available</span></div><div class="total-caption">Total capacity <strong id="forkliftsTotal">—</strong></div></div>
+<div class="resource-card"><h3>Packing</h3><div class="number"><span id="packing">—</span><span class="muted"> available</span></div><div class="total-caption">Total capacity <strong id="packingTotal">—</strong></div></div>
+<div class="resource-card"><h3>Vehicles</h3><div class="number"><span id="vehicles">—</span><span class="muted"> available</span></div><div class="total-caption">Total capacity <strong id="vehiclesTotal">—</strong></div></div>
+</div>
+<div id="resourceMessage" class="message" role="status" aria-live="polite"></div>
+<div class="reset-actions">
+<button id="resetWarehouse" type="button" class="danger">Reset Warehouse / Reset Demo Data</button>
+<p class="muted">Clears orders, allocations, pending requests, and results and restores the default capacities. Running processes must be completed first.</p>
+<div id="resetMessage" class="message" role="status" aria-live="polite"></div>
+</div>
+<div class="capacity-panel">
+<h3>Configure Resource Capacity</h3>
+<p class="muted">Set total warehouse units. Current allocations and active maximum claims are protected.</p>
+<form id="capacityForm">
+<div class="capacity-fields">
+<div class="field"><label for="capacityWorker">Worker total</label><input id="capacityWorker" data-capacity-resource="Worker" type="number" min="0" step="1" required></div>
+<div class="field"><label for="capacityForklift">Forklift total</label><input id="capacityForklift" data-capacity-resource="Forklift" type="number" min="0" step="1" required></div>
+<div class="field"><label for="capacityPacking">Packing total</label><input id="capacityPacking" data-capacity-resource="Packing" type="number" min="0" step="1" required></div>
+<div class="field"><label for="capacityVehicle">Vehicle total</label><input id="capacityVehicle" data-capacity-resource="Vehicle" type="number" min="0" step="1" required></div>
+</div>
+<div class="actions">
+<button id="saveCapacity" type="submit">Save Capacity</button>
+<button id="reloadCapacity" type="button" class="secondary">Reload Current</button>
+</div>
+</form>
+<div id="capacityMessage" class="message" role="status" aria-live="polite"></div>
+</div>
+</section>
+
+<div class="layout">
+<section id="orders">
+<h2>Create Warehouse Order</h2>
+<form id="createOrderForm">
+<div class="fields">
+<div class="field"><label for="processId">Process ID</label><input id="processId" name="process_id" placeholder="P101" required></div>
+<div class="field"><label for="orderId">Order ID</label><input id="orderId" name="order_id" placeholder="O101" required></div>
+<div class="field"><label for="arrivalTime">Arrival Time</label><input id="arrivalTime" name="arrival_time" type="number" min="0" value="0" required></div>
+<div class="field"><label for="burstTime">Burst Time</label><input id="burstTime" name="burst_time" type="number" min="1" value="5" required></div>
+<div class="field"><label for="priority">Priority</label><input id="priority" name="priority" type="number" min="1" value="1" required></div>
+</div>
+<label>Maximum Resource Claims</label>
+<div class="quantities">
+<div class="field"><label for="claimWorker">Worker units</label><input id="claimWorker" data-claim-resource="Worker" type="number" min="0" max="5" value="0"></div>
+<div class="field"><label for="claimForklift">Forklift units</label><input id="claimForklift" data-claim-resource="Forklift" type="number" min="0" max="2" value="0"></div>
+<div class="field"><label for="claimPacking">Packing units</label><input id="claimPacking" data-claim-resource="Packing" type="number" min="0" max="3" value="0"></div>
+<div class="field"><label for="claimVehicle">Vehicle units</label><input id="claimVehicle" data-claim-resource="Vehicle" type="number" min="0" max="2" value="0"></div>
+</div>
+<div class="actions">
+<button type="submit">Create Order</button>
+<button type="reset" class="secondary">Clear Form</button>
+</div>
+</form>
+<div id="createMessage" class="message" role="status" aria-live="polite"></div>
+</section>
+
+<section id="allocation">
+<h2>Resource Allocation</h2>
+<form id="allocationForm">
+<div class="field">
+<label for="allocationProcessId">Process ID</label>
+<input id="allocationProcessId" name="process_id" placeholder="P102" required>
+</div>
+<div class="field">
+<label>Resources to allocate</label>
+<div class="quantities">
+<div class="field"><label for="allocateWorker">Worker units</label><input id="allocateWorker" data-allocation-resource="Worker" type="number" min="0" value="0"></div>
+<div class="field"><label for="allocateForklift">Forklift units</label><input id="allocateForklift" data-allocation-resource="Forklift" type="number" min="0" value="0"></div>
+<div class="field"><label for="allocatePacking">Packing units</label><input id="allocatePacking" data-allocation-resource="Packing" type="number" min="0" value="0"></div>
+<div class="field"><label for="allocateVehicle">Vehicle units</label><input id="allocateVehicle" data-allocation-resource="Vehicle" type="number" min="0" value="0"></div>
+</div>
+</div>
+<div class="fields">
+<div class="field"><label for="releaseResource">Resource to release</label><select id="releaseResource"><option value="">Select resource</option><option>Worker</option><option>Forklift</option><option>Packing</option><option>Vehicle</option></select></div>
+<div class="field"><label for="releaseQuantity">Units to release</label><input id="releaseQuantity" type="number" min="1" value="1"></div>
+</div>
+<div class="actions">
+<button type="submit">Allocate Resource</button>
+<button type="button" class="secondary" id="releaseSelectedButton">Release Selected Units</button>
+<button type="button" class="danger" id="releaseButton">Release Resources</button>
+</div>
+</form>
+<div id="allocationMessage" class="message" role="status" aria-live="polite"></div>
+<p class="resource-help">Resource counts refresh from the server after each allocation, release, run, and completion operation.</p>
+<h3 style="margin-top:20px">Live Resource Allocation Table</h3>
+<p class="muted">Counts come from the backend's current allocation records. Required resources that have not been allocated are shown as 0.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Process ID</th><th>Order ID</th><th>State</th><th>Worker</th><th>Forklift</th><th>Packing</th><th>Vehicle</th><th>Actions</th></tr></thead>
+<tbody id="allocationBody"><tr><td colspan="8">No orders created yet.</td></tr></tbody>
+</table>
+</div>
+</section>
+</div>
+
+<section id="scheduling">
+<h2>Process Scheduling</h2>
+<div class="fields">
+<div class="field">
+<label for="algorithm">Scheduling Algorithm</label>
+<select id="algorithm">
+<option value="FCFS">First Come First Served (FCFS)</option>
+<option value="SJF">Shortest Job First (SJF)</option>
+<option value="PRIORITY">Priority Scheduling</option>
+<option value="RR">Round Robin (RR)</option>
+</select>
+</div>
+<div class="field">
+<label for="timeQuantum">Round Robin Time Quantum</label>
+<input id="timeQuantum" type="number" min="1" value="2">
+</div>
+</div>
+<button id="runScheduler">Run Scheduler</button>
+<div id="schedulerMessage" class="message" role="status" aria-live="polite"></div>
+<div class="result-grid" style="margin-top:15px">
+<div class="result"><span class="muted">Selected Algorithm</span><strong id="selectedAlgorithm">—</strong></div>
+<div class="result"><span class="muted">Average Waiting Time</span><strong id="averageWaiting">—</strong></div>
+<div class="result"><span class="muted">Average Turnaround Time</span><strong id="averageTurnaround">—</strong></div>
+<div class="result"><span class="muted">Scheduled Processes</span><strong id="scheduledCount">—</strong></div>
+</div>
+<div class="table-wrap" style="margin-top:15px">
+<table>
+<thead><tr><th>Process</th><th>Order</th><th>Arrival</th><th>Burst</th><th>Priority</th><th>Completion</th><th>Waiting</th><th>Turnaround</th></tr></thead>
+<tbody id="scheduleBody"><tr><td colspan="8">Run the scheduler to see results.</td></tr></tbody>
+</table>
+</div>
+</section>
+
+<div class="layout" id="monitors">
+<section>
+<h2>Deadlock Monitor</h2>
+<p class="muted">Uses active warehouse processes, current holdings, and outstanding resource requests.</p>
+<div class="result-grid">
+<div class="result"><span class="muted">Status</span><strong id="deadlockStatus">Not run</strong></div>
+<div class="result"><span class="muted">Deadlocked Processes</span><strong id="deadlockedProcesses">—</strong></div>
+</div>
+<button id="checkDeadlock" style="margin-top:15px">Check Deadlock</button>
+<div id="deadlockMessage" class="message" role="status" aria-live="polite"></div>
+<pre id="deadlockDetails" class="monitor-detail">Click Check Deadlock to analyze the current warehouse state.</pre>
+</section>
+
+<section>
+<h2>Banker's Algorithm — Safety Check</h2>
+<p class="muted">Checks the safety of the active warehouse allocation against each process's recorded maximum claim.</p>
+<div class="result-grid">
+<div class="result"><span class="muted">Result</span><strong id="bankerStatus">Not run</strong></div>
+<div class="result"><span class="muted">Safe Sequence</span><strong id="safeSequence">—</strong></div>
+</div>
+<button id="checkBanker" style="margin-top:15px">Run Banker's Algorithm</button>
+<div id="bankerMessage" class="message" role="status" aria-live="polite"></div>
+<pre id="bankerDetails" class="monitor-detail">Click Run Banker's Algorithm to check the current warehouse state.</pre>
+</section>
+</div>
+
+<section id="processes">
+<h2>Process Table</h2>
+<p class="muted">Run a process to request its required resources. Running processes remain active until completed.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Process</th><th>Order</th><th>Burst</th><th>Priority</th><th>State</th><th>Waiting</th><th>Turnaround</th><th>Completion</th><th>Action</th></tr></thead>
+<tbody id="processBody"><tr><td colspan="9">No orders created yet. Create an order above.</td></tr></tbody>
+</table>
+</div>
+<div id="processMessage" class="message" role="status" aria-live="polite"></div>
+</section>
+</main>
+<footer>Smart Warehouse Operating &amp; Communication System</footer>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+async function requestJSON(url, options = {}) {
+    const response = await fetch(url, {
+        headers: {"Content-Type": "application/json", ...(options.headers || {})},
+        ...options
+    });
+    const text = await response.text();
+    let data = {};
+    try { data = text ? JSON.parse(text) : {}; }
+    catch { data = {message: text}; }
+
+    if (!response.ok) {
+        throw new Error(data.error || data.message || `Request failed (${response.status})`);
+    }
+    if (data && data.success === false) {
+        throw new Error(data.error || data.message || "Operation failed");
+    }
+    return data;
+}
+
+function postJSON(url, body) {
+    return requestJSON(url, {method: "POST", body: JSON.stringify(body)});
+}
+
+function showMessage(id, message, isError = false) {
+    const element = $(id);
+    element.textContent = message || "";
+    element.style.color = isError ? "#a6403b" : "#53606d";
+}
+
+function setBackendStatus(online) {
+    const pill = $("systemStatusPill");
+    pill.classList.toggle("online", online);
+    pill.classList.toggle("offline", !online);
+    $("systemStatusText").textContent = online
+        ? "System connected"
+        : "Service unavailable";
+}
+
+function firstValue(object, keys, fallback = undefined) {
+    for (const key of keys) {
+        if (object && object[key] !== undefined && object[key] !== null) return object[key];
+    }
+    return fallback;
+}
+
+function resourceCounts(data) {
+    const resources = data && data.resources;
+    const totals = data && data.total_resources;
+    const names = ["Worker", "Forklift", "Packing", "Vehicle"];
+    if (
+        !data
+        || data.success !== true
+        || !resources
+        || typeof resources !== "object"
+        || Array.isArray(resources)
+        || !totals
+        || typeof totals !== "object"
+        || Array.isArray(totals)
+    ) {
+        throw new Error("Invalid resource response from /resource_capacity");
+    }
+    for (const name of names) {
+        if (
+            !Number.isInteger(resources[name])
+            || resources[name] < 0
+            || !Number.isInteger(totals[name])
+            || totals[name] < resources[name]
+        ) {
+            throw new Error(`Invalid available count for ${name}`);
+        }
+    }
+    return {resources, totals};
+}
+
+function updateResourceCards(data, syncCapacityInputs = false) {
+    const {resources, totals} = resourceCounts(data);
+    const resourceIds = {
+        Worker: "workers",
+        Forklift: "forklifts",
+        Packing: "packing",
+        Vehicle: "vehicles"
+    };
+    for (const [resource, id] of Object.entries(resourceIds)) {
+        $(id).textContent = resources[resource];
+        $(`${id}Total`).textContent = totals[resource];
+        if (syncCapacityInputs) {
+            $(`capacity${resource}`).value = totals[resource];
+        }
+    }
+    for (const input of document.querySelectorAll("[data-claim-resource]")) {
+        input.max = totals[input.dataset.claimResource];
+    }
+}
+
+async function refreshResources(syncCapacityInputs = false) {
+    try {
+        const data = await requestJSON("/resource_capacity");
+        updateResourceCards(data, syncCapacityInputs);
+        setBackendStatus(true);
+        showMessage("resourceMessage", "");
+        return data;
+    } catch (error) {
+        $("workers").textContent = "—";
+        $("forklifts").textContent = "—";
+        $("packing").textContent = "—";
+        $("vehicles").textContent = "—";
+        $("workersTotal").textContent = "—";
+        $("forkliftsTotal").textContent = "—";
+        $("packingTotal").textContent = "—";
+        $("vehiclesTotal").textContent = "—";
+        setBackendStatus(false);
+        showMessage("resourceMessage", "Could not refresh resource counts. " + error.message, true);
+        throw error;
+    }
+}
+
+function processArray(data) {
+    if (Array.isArray(data)) return data;
+    for (const key of ["processes", "orders", "data", "items"]) {
+        if (data && Array.isArray(data[key])) return data[key];
+    }
+    if (data && data.status && Array.isArray(data.status.processes)) return data.status.processes;
+    return [];
+}
+
+function processIdOf(p) {
+    return firstValue(p, ["process_id", "processId", "pid", "id"], "");
+}
+
+function stateOf(p) {
+    return String(firstValue(p, ["state", "status"], "NEW")).toUpperCase();
+}
+
+function pillClass(state) {
+    if (state === "RUNNING") return "running";
+    if (state === "COMPLETED") return "completed";
+    if (state === "WAITING" || state === "BLOCKED") return "waiting";
+    if (state === "FAILED") return "failed";
+    return "";
+}
+
+function displayValue(value) {
+    return value === undefined || value === null || value === "" ? "—" : value;
+}
+
+async function loadProcesses() {
+    let data;
+    try {
+        data = await requestJSON("/status");
+    } catch (error) {
+        $("totalProcesses").textContent = "—";
+        $("runningProcesses").textContent = "—";
+        $("completedProcesses").textContent = "—";
+        $("processBody").innerHTML =
+            '<tr><td colspan="9">Process status unavailable; displayed rows cleared.</td></tr>';
+        $("allocationBody").innerHTML =
+            '<tr><td colspan="8">Allocation status unavailable; displayed rows cleared.</td></tr>';
+        showMessage("processMessage", "Could not load processes: " + error.message, true);
+        return;
+    }
+
+    const processes = processArray(data);
+    const running = processes.filter(p => stateOf(p) === "RUNNING").length;
+    const completed = processes.filter(p => stateOf(p) === "COMPLETED").length;
+
+    $("totalProcesses").textContent = processes.length;
+    $("runningProcesses").textContent = running;
+    $("completedProcesses").textContent = completed;
+
+    const body = $("processBody");
+    const allocationBody = $("allocationBody");
+    if (!processes.length) {
+        body.innerHTML = '<tr><td colspan="9">No orders created yet. Create an order above.</td></tr>';
+        allocationBody.innerHTML = '<tr><td colspan="8">No orders created yet.</td></tr>';
+        return;
+    }
+
+    body.replaceChildren();
+    allocationBody.replaceChildren();
+    for (const p of processes) {
+        const pid = processIdOf(p);
+        const state = stateOf(p);
+        const row = document.createElement("tr");
+        const values = [
+            pid,
+            firstValue(p, ["order_id", "orderId"], "—"),
+            firstValue(p, ["burst_time", "burst", "burstTime"], "—"),
+            firstValue(p, ["priority"], "—"),
+            null,
+            firstValue(p, ["waiting_time", "waiting", "waitingTime"], "—"),
+            firstValue(p, ["turnaround_time", "turnaround", "turnaroundTime"], "—"),
+            firstValue(p, ["completion_time", "completion", "completionTime"], "—"),
+            null
+        ];
+
+        values.forEach((value, index) => {
+            const cell = document.createElement("td");
+            if (index === 4) {
+                const badge = document.createElement("span");
+                badge.className = "pill " + pillClass(state);
+                badge.textContent = state;
+                cell.appendChild(badge);
+            } else if (index === 8) {
+                const actions = document.createElement("div");
+                actions.className = "actions";
+                if (state === "RUNNING") {
+                    const complete = document.createElement("button");
+                    complete.className = "success";
+                    complete.textContent = "Complete";
+                    complete.addEventListener("click", () => completeProcess(pid));
+                    actions.appendChild(complete);
+                } else if (state !== "COMPLETED") {
+                    const run = document.createElement("button");
+                    run.textContent = "Run";
+                    run.addEventListener("click", () => runProcess(pid));
+                    actions.appendChild(run);
+                } else {
+                    cell.textContent = "Finished";
+                }
+                if (actions.childElementCount) cell.appendChild(actions);
+            } else {
+                cell.textContent = displayValue(value);
+            }
+            row.appendChild(cell);
+        });
+        body.appendChild(row);
+
+        const allocationRow = document.createElement("tr");
+        const allocationStateCell = document.createElement("td");
+        const stateBadge = document.createElement("span");
+        stateBadge.className = "pill " + pillClass(state);
+        stateBadge.textContent = state;
+        allocationStateCell.appendChild(stateBadge);
+        [
+            pid,
+            firstValue(p, ["order_id", "orderId"], "—")
+        ].forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent = displayValue(value);
+            allocationRow.appendChild(cell);
+        });
+        allocationRow.appendChild(allocationStateCell);
+
+        const holdings = firstValue(p, ["allocated_resources"], {});
+        let hasAllocation = false;
+        for (const resource of ["Worker", "Forklift", "Packing", "Vehicle"]) {
+            const count = holdings && Number.isInteger(holdings[resource])
+                ? holdings[resource]
+                : 0;
+            hasAllocation = hasAllocation || count > 0;
+            const cell = document.createElement("td");
+            cell.textContent = count;
+            allocationRow.appendChild(cell);
+        }
+
+        const allocationActionCell = document.createElement("td");
+        const release = document.createElement("button");
+        release.className = "danger";
+        release.textContent = "Release";
+        release.disabled = !hasAllocation || state === "RUNNING";
+        release.title = state === "RUNNING"
+            ? "Complete the running process before releasing its resources."
+            : "";
+        release.addEventListener("click", () => releaseProcess(pid));
+        allocationActionCell.appendChild(release);
+        allocationRow.appendChild(allocationActionCell);
+        allocationBody.appendChild(allocationRow);
+    }
+}
+
+function resetLiveMonitorResults() {
+    $("deadlockStatus").textContent = "Not run";
+    $("deadlockedProcesses").textContent = "—";
+    $("deadlockDetails").textContent =
+        "Click Check Deadlock to analyze the current warehouse state.";
+    $("bankerStatus").textContent = "Not run";
+    $("safeSequence").textContent = "—";
+    $("bankerDetails").textContent =
+        "Click Run Banker's Algorithm to check the current warehouse state.";
+    showMessage("deadlockMessage", "");
+    showMessage("bankerMessage", "");
+}
+
+async function refreshDashboard(syncCapacityInputs = false) {
+    resetLiveMonitorResults();
+    await Promise.allSettled([
+        refreshResources(syncCapacityInputs),
+        loadProcesses()
+    ]);
+}
+
+function resetScheduleResults() {
+    $("selectedAlgorithm").textContent = "—";
+    $("averageWaiting").textContent = "—";
+    $("averageTurnaround").textContent = "—";
+    $("scheduledCount").textContent = "—";
+    $("scheduleBody").innerHTML =
+        '<tr><td colspan="8">Run the scheduler to see results.</td></tr>';
+    showMessage("schedulerMessage", "");
+}
+
+function formatResourceVector(vector, resourceTypes) {
+    return resourceTypes
+        .map((name, index) => {
+            const value = Array.isArray(vector) ? vector[index] : vector[name];
+            return `${name}=${displayValue(value)}`;
+        })
+        .join(", ");
+}
+
+function processLabel(process) {
+    return process.order_id
+        ? `${process.process_id} (${process.order_id})`
+        : process.process_id;
+}
+
+function formatBankerDetails(result) {
+    const resourceTypes = result.resource_types || [];
+    const labels = new Map(
+        (result.processes || []).map(process => [
+            process.process_id,
+            processLabel(process)
+        ])
+    );
+    const sequence = (result.safe_sequence || [])
+        .map(processId => labels.get(processId) || processId);
+    const lines = [
+        `Resources: ${resourceTypes.join(", ") || "None"}`,
+        `Available: ${formatResourceVector(result.available || {}, resourceTypes)}`,
+        `Final Work: ${formatResourceVector(result.final_work || [], resourceTypes)}`,
+        `Safe sequence: ${sequence.join(" → ") || "None"}`,
+        `Unfinished: ${(result.unfinished_processes || [])
+            .map(processId => labels.get(processId) || processId)
+            .join(", ") || "None"}`,
+        "",
+        "Processes:"
+    ];
+    for (const process of result.processes || []) {
+        lines.push(
+            `${processLabel(process)} | ${process.state} | ` +
+            `Allocation: ${formatResourceVector(
+                (result.allocation || {})[process.process_id] || {},
+                resourceTypes
+            )} | Maximum: ${formatResourceVector(
+                (result.maximum || {})[process.process_id] || {},
+                resourceTypes
+            )} | Need: ${formatResourceVector(
+                (result.need_by_process || {})[process.process_id] || {},
+                resourceTypes
+            )}`
+        );
+    }
+    lines.push("", "Explanations:");
+    for (const item of result.process_explanations || []) {
+        lines.push(`${processLabel(item)}: ${item.explanation}`);
+    }
+    return lines.join("\n");
+}
+
+function formatDeadlockDetails(result) {
+    const resourceTypes = result.resource_types || [];
+    const processById = new Map(
+        (result.processes || []).map(process => [process.process_id, process])
+    );
+    const sequence = (result.safe_sequence || []).map(processId => {
+        const process = processById.get(processId);
+        return process ? processLabel(process) : processId;
+    });
+    const lines = [
+        `Resources: ${resourceTypes.join(", ") || "None"}`,
+        `Available: ${formatResourceVector(result.available || {}, resourceTypes)}`,
+        `Final Work: ${formatResourceVector(result.final_work || [], resourceTypes)}`,
+        `Detection sequence: ${sequence.join(" → ") || "None"}`,
+        `Deadlocked: ${(result.deadlocked_processes || []).join(", ") || "None"}`,
+        "",
+        "Active processes:"
+    ];
+    for (const process of result.processes || []) {
+        lines.push(
+            `${processLabel(process)} | ${process.state} | ` +
+            `Allocation: ${formatResourceVector(process.allocation, resourceTypes)} | ` +
+            `Request: ${formatResourceVector(process.request, resourceTypes)} | ` +
+            `${process.explanation}`
+        );
+    }
+    if (result.work_trace && result.work_trace.length) {
+        lines.push("", "Work trace:");
+        for (const step of result.work_trace) {
+            lines.push(
+                `${step.process_id}: ${formatResourceVector(
+                    step.work_before,
+                    resourceTypes
+                )} + ${formatResourceVector(
+                    step.released_allocation,
+                    resourceTypes
+                )} → ${formatResourceVector(step.work_after, resourceTypes)}`
+            );
+        }
+    }
+    return lines.join("\n");
+}
+
+async function refreshDeadlockMonitor() {
+    $("deadlockStatus").textContent = "CHECKING…";
+    $("deadlockedProcesses").textContent = "—";
+    $("deadlockDetails").textContent = "";
+    try {
+        const result = await requestJSON("/deadlock");
+        $("deadlockStatus").textContent = result.status;
+        const labels = new Map(
+            (result.processes || []).map(process => [
+                process.process_id,
+                processLabel(process)
+            ])
+        );
+        $("deadlockedProcesses").textContent =
+            (result.deadlocked_processes || [])
+                .map(processId => labels.get(processId) || processId)
+                .join(", ") || "None";
+        $("deadlockDetails").textContent = formatDeadlockDetails(result);
+        showMessage("deadlockMessage", result.message || "Deadlock check completed.");
+    } catch (error) {
+        $("deadlockStatus").textContent = "ERROR";
+        $("deadlockedProcesses").textContent = "Unavailable";
+        $("deadlockDetails").textContent = "Live deadlock state could not be read.";
+        showMessage("deadlockMessage", "Deadlock check failed: " + error.message, true);
+    }
+}
+
+async function refreshBankerMonitor() {
+    $("bankerStatus").textContent = "CHECKING…";
+    $("safeSequence").textContent = "—";
+    $("bankerDetails").textContent = "";
+    try {
+        const result = await postJSON("/banker", {});
+        $("bankerStatus").textContent = result.status;
+        const labels = new Map(
+            (result.processes || []).map(process => [
+                process.process_id,
+                processLabel(process)
+            ])
+        );
+        $("safeSequence").textContent = (result.safe_sequence || [])
+            .map(processId => labels.get(processId) || processId)
+            .join(" → ") || "No active process sequence";
+        $("bankerDetails").textContent = formatBankerDetails(result);
+        showMessage(
+            "bankerMessage",
+            result.message || result.explanation || "Safety check completed."
+        );
+    } catch (error) {
+        $("bankerStatus").textContent = "ERROR";
+        $("safeSequence").textContent = "—";
+        $("bankerDetails").textContent = "Live safety state could not be read.";
+        showMessage("bankerMessage", "Banker's Algorithm check failed: " + error.message, true);
+    }
+}
+
+function selectedQuantities(selector) {
+    const resources = [];
+    for (const input of document.querySelectorAll(selector)) {
+        const quantity = Number(input.value);
+        if (!Number.isInteger(quantity) || quantity < 0) {
+            throw new Error("Resource quantities must be non-negative integers.");
+        }
+        for (let unit = 0; unit < quantity; unit += 1) {
+            resources.push(input.dataset.claimResource || input.dataset.allocationResource);
+        }
+    }
+    return resources;
+}
+
+function readCapacityInputs() {
+    const capacities = {};
+    for (const input of document.querySelectorAll("[data-capacity-resource]")) {
+        if (!input.value.trim()) {
+            throw new Error("Enter a total capacity for each resource.");
+        }
+        const amount = Number(input.value);
+        if (!Number.isSafeInteger(amount) || amount < 0) {
+            throw new Error("Resource capacities must be non-negative integers.");
+        }
+        capacities[input.dataset.capacityResource] = amount;
+    }
+    return capacities;
+}
+
+$("capacityForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    let resourceCapacity;
+    try {
+        resourceCapacity = readCapacityInputs();
+    } catch (error) {
+        showMessage("capacityMessage", error.message, true);
+        return;
+    }
+
+    $("saveCapacity").disabled = true;
+    try {
+        const result = await requestJSON("/resource_capacity", {
+            method: "PUT",
+            body: JSON.stringify({resource_capacity: resourceCapacity})
+        });
+        showMessage("capacityMessage", result.message);
+        await refreshDashboard(true);
+    } catch (error) {
+        showMessage("capacityMessage", "Could not update capacities: " + error.message, true);
+    } finally {
+        $("saveCapacity").disabled = false;
+    }
+});
+
+$("reloadCapacity").addEventListener("click", async () => {
+    $("reloadCapacity").disabled = true;
+    try {
+        const result = await requestJSON("/resource_capacity");
+        updateResourceCards(result, true);
+        showMessage("capacityMessage", "Loaded the current resource capacities.");
+    } catch (error) {
+        showMessage("capacityMessage", "Could not load current capacities: " + error.message, true);
+    } finally {
+        $("reloadCapacity").disabled = false;
+    }
+});
+
+async function releaseProcess(pid) {
+    try {
+        const result = await postJSON("/release", {process_id: pid});
+        showMessage("allocationMessage", result.message);
+    } catch (error) {
+        showMessage("allocationMessage", "Release failed: " + error.message, true);
+    }
+    await refreshDashboard();
+}
+
+$("createOrderForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    let payload;
+    try {
+        payload = {
+            process_id: $("processId").value.trim(),
+            order_id: $("orderId").value.trim(),
+            arrival_time: Number($("arrivalTime").value),
+            burst_time: Number($("burstTime").value),
+            priority: Number($("priority").value),
+            resources: selectedQuantities("[data-claim-resource]")
+        };
+    } catch (error) {
+        showMessage("createMessage", error.message, true);
+        return;
+    }
+
+    if (!payload.process_id || !payload.order_id) {
+        showMessage("createMessage", "Enter both Process ID and Order ID.", true);
+        return;
+    }
+
+    try {
+        const result = await postJSON("/create_order", payload);
+        showMessage("createMessage", result.message || result.status || "Order creation request succeeded.");
+        await refreshDashboard();
+        $("allocationProcessId").value = payload.process_id;
+    } catch (error) {
+        showMessage("createMessage", "Order creation failed: " + error.message, true);
+    }
+});
+
+$("allocationForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const pid = $("allocationProcessId").value.trim();
+    let resources;
+    try {
+        resources = selectedQuantities("[data-allocation-resource]");
+    } catch (error) {
+        showMessage("allocationMessage", error.message, true);
+        return;
+    }
+    if (!pid) {
+        showMessage("allocationMessage", "Enter a Process ID first.", true);
+        return;
+    }
+    if (!resources.length) {
+        showMessage("allocationMessage", "Select at least one resource.", true);
+        return;
+    }
+
+    try {
+        const result = await postJSON("/allocate", {
+            process_id: pid,
+            resources: resources
+        });
+        showMessage("allocationMessage", result.message);
+    } catch (error) {
+        showMessage("allocationMessage", "Allocation failed: " + error.message, true);
+    }
+    await refreshDashboard();
+});
+
+$("releaseButton").addEventListener("click", async () => {
+    const pid = $("allocationProcessId").value.trim();
+    if (!pid) {
+        showMessage("allocationMessage", "Enter the Process ID whose resources you want to release.", true);
+        return;
+    }
+    await releaseProcess(pid);
+});
+
+$("releaseSelectedButton").addEventListener("click", async () => {
+    const pid = $("allocationProcessId").value.trim();
+    const resource = $("releaseResource").value;
+    const quantity = Number($("releaseQuantity").value);
+    if (!pid || !resource) {
+        showMessage("allocationMessage", "Enter a Process ID and select a resource to release.", true);
+        return;
+    }
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+        showMessage("allocationMessage", "Release quantity must be a positive integer.", true);
+        return;
+    }
+    try {
+        const result = await postJSON("/release", {
+            process_id: pid,
+            resource,
+            quantity
+        });
+        showMessage("allocationMessage", result.message);
+    } catch (error) {
+        showMessage("allocationMessage", "Release failed: " + error.message, true);
+    }
+    await refreshDashboard();
+});
+
+async function runProcess(pid) {
+    try {
+        const result = await postJSON("/run_process", {process_id: pid});
+        showMessage("processMessage", result.message || result.status || `Run request submitted for ${pid}.`);
+        await refreshDashboard();
+    } catch (error) {
+        showMessage("processMessage", `Could not run ${pid}: ${error.message}`, true);
+        await refreshDashboard();
+    }
+}
+
+async function completeProcess(pid) {
+    try {
+        const result = await postJSON("/complete_process", {process_id: pid});
+        showMessage("processMessage", result.message || result.status || `${pid} completion request submitted.`);
+        await refreshDashboard();
+    } catch (error) {
+        showMessage("processMessage", `Could not complete ${pid}: ${error.message}`, true);
+        await refreshDashboard();
+    }
+}
+
+$("runScheduler").addEventListener("click", async () => {
+    const algorithm = $("algorithm").value;
+    const quantum = Number($("timeQuantum").value);
+    try {
+        const payload = {algorithm: algorithm, time_quantum: quantum};
+        const result = await postJSON("/schedule", payload);
+        $("selectedAlgorithm").textContent = firstValue(result, ["algorithm", "selected_algorithm"], algorithm);
+        $("averageWaiting").textContent = displayValue(firstValue(result, ["average_waiting_time", "avg_waiting_time", "average_waiting"]));
+        $("averageTurnaround").textContent = displayValue(firstValue(result, ["average_turnaround_time", "avg_turnaround_time", "average_turnaround"]));
+        const rows = firstValue(result, ["results", "schedule", "processes"], []);
+        $("scheduledCount").textContent = Array.isArray(rows) ? rows.length : "—";
+        const body = $("scheduleBody");
+        body.replaceChildren();
+        if (!Array.isArray(rows) || !rows.length) {
+            body.innerHTML = '<tr><td colspan="8">No scheduling results returned. Check the backend response.</td></tr>';
+        } else {
+            for (const p of rows) {
+                const tr = document.createElement("tr");
+                [
+                    processIdOf(p),
+                    firstValue(p, ["order_id", "orderId"], "—"),
+                    firstValue(p, ["arrival_time", "arrival"], "—"),
+                    firstValue(p, ["burst_time", "burst"], "—"),
+                    firstValue(p, ["priority"], "—"),
+                    firstValue(p, ["completion_time", "completion"], "—"),
+                    firstValue(p, ["waiting_time", "waiting"], "—"),
+                    firstValue(p, ["turnaround_time", "turnaround"], "—")
+                ].forEach(v => {
+                    const td = document.createElement("td");
+                    td.textContent = displayValue(v);
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            }
+        }
+        showMessage("schedulerMessage", result.message || "Scheduling request completed.");
+        await refreshDashboard();
+    } catch (error) {
+        showMessage("schedulerMessage", "Scheduling failed: " + error.message, true);
+    }
+});
+
+$("checkDeadlock").addEventListener("click", async () => {
+    await refreshDeadlockMonitor();
+});
+
+$("checkBanker").addEventListener("click", async () => {
+    await refreshBankerMonitor();
+});
+
+$("resetWarehouse").addEventListener("click", async () => {
+    if (!window.confirm(
+        "Reset all warehouse data and restore default resource capacities?"
+    )) {
+        return;
+    }
+
+    const button = $("resetWarehouse");
+    button.disabled = true;
+    showMessage("resetMessage", "");
+    try {
+        const result = await postJSON("/reset", {});
+        resetScheduleResults();
+        resetLiveMonitorResults();
+        await refreshDashboard(true);
+        showMessage("resetMessage", result.message);
+    } catch (error) {
+        showMessage("resetMessage", "Warehouse reset failed: " + error.message, true);
+    } finally {
+        button.disabled = false;
+    }
+});
+
+$("createOrderForm").addEventListener("reset", () => {
+    setTimeout(() => showMessage("createMessage", ""), 0);
+});
+
+refreshDashboard(true);
+</script>
+</body>
+</html>
